@@ -66,3 +66,4 @@
 /Users/rinchi/VSCodeProjects/belonging/obj/Debug/net8.0/belonging.csproj.Up2Date
 /Users/rinchi/VSCodeProjects/belonging/obj/Debug/net8.0/belonging.genruntimeconfig.cache
 /Users/rinchi/VSCodeProjects/belonging/obj/Debug/net8.0/ref/belonging.dll
+/Users/rinchi/VSCodeProjects/belonging/obj/Debug/net8.0/belonging.sourcelink.json

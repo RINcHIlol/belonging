@@ -12,15 +12,14 @@ namespace belonging.Views;
 public partial class MainWindow : Window
 {
     private string? _selectedShape;
-    private bool _checkMode; // Флаг режима проверки
-    private Shape? _currentShape; // Текущая фигура
-    private TextBlock _resultText; // Для отображения текста результата
+    private bool _checkMode;
+    private Shape? _currentShape;
+    private TextBlock _resultText;
 
     public MainWindow()
     {
         InitializeComponent();
 
-        // Создаем TextBlock для отображения результата
         _resultText = new TextBlock
         {
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
@@ -28,30 +27,30 @@ public partial class MainWindow : Window
             FontSize = 20,
             Margin = new Thickness(0, 10, 0, 0)
         };
-        MainGrid.Children.Add(_resultText); // Добавляем TextBlock в Grid
+        MainGrid.Children.Add(_resultText);
     }
 
     private void OnDrawSquareClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _selectedShape = "Square";
-        _checkMode = false; // Отключаем режим проверки
+        _checkMode = false;
     }
 
     private void OnDrawPentagonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _selectedShape = "Pentagon";
-        _checkMode = false; // Отключаем режим проверки
+        _checkMode = false;
     }
 
     private void OnDrawHexagonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _selectedShape = "Hexagon";
-        _checkMode = false; // Отключаем режим проверки
+        _checkMode = false;
     }
 
     private void OnCheckModeClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        _checkMode = true; // Включаем режим проверки
+        _checkMode = true;
     }
 
     private void OnCanvasClick(object? sender, PointerPressedEventArgs e)
@@ -60,7 +59,6 @@ public partial class MainWindow : Window
 
         if (_checkMode)
         {
-            // Проверяем попадание по фигуре
             if (_currentShape != null && IsPointInsideShape(_currentShape, pointerPosition))
             {
                 _resultText.Text = "Попал!";
@@ -76,13 +74,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Если фигура не выбрана, ничего не делаем
         if (_selectedShape == null) return;
 
-        // Очищаем предыдущую фигуру
         DrawingCanvas.Children.Clear();
 
-        // Создаем новую фигуру
         _currentShape = _selectedShape switch
         {
             "Square" => new Rectangle
@@ -124,8 +119,11 @@ public partial class MainWindow : Window
             double shapeWidth = _currentShape is Polygon ? 50 : _currentShape.Bounds.Width;
             double shapeHeight = _currentShape is Polygon ? 50 : _currentShape.Bounds.Height;
 
-            Canvas.SetLeft(_currentShape, pointerPosition.X - shapeWidth / 2);
-            Canvas.SetTop(_currentShape, pointerPosition.Y - shapeHeight / 2);
+            double x = Math.Max(0, Math.Min(pointerPosition.X - shapeWidth / 2, DrawingCanvas.Bounds.Width - shapeWidth));
+            double y = Math.Max(0, Math.Min(pointerPosition.Y - shapeHeight / 2, DrawingCanvas.Bounds.Height - shapeHeight));
+
+            Canvas.SetLeft(_currentShape, x);
+            Canvas.SetTop(_currentShape, y);
 
             DrawingCanvas.Children.Add(_currentShape);
         }
@@ -175,3 +173,6 @@ public partial class MainWindow : Window
         return isInside;
     }
 }
+
+// double x = Math.Max(0, Math.Min(pointerPosition.X - shapeWidth / 2, DrawingCanvas.Bounds.Width - shapeWidth)); 
+// double y = Math.Max(0, Math.Min(pointerPosition.Y - shapeHeight / 2, DrawingCanvas.Bounds.Height - shapeHeight));

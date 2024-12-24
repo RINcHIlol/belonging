@@ -16,7 +16,9 @@
             <Button Content="Квадрат" Click="OnDrawSquareClick" Margin="5"/>
             <Button Content="Пятиугольник" Click="OnDrawPentagonClick" Margin="5"/>
             <Button Content="Шестиугольник" Click="OnDrawHexagonClick" Margin="5"/>
+            <Button Content="Обновить фигуры" Click="OnRefreshShapesClick" Margin="5"/>
             <Button Content="Проверить попадание" Click="OnCheckModeClick" Margin="5"/>
+            <Button Content="Очистить" Click="OnClearCanvasClick" Margin="5"/>
         </StackPanel>
     </Grid>
 

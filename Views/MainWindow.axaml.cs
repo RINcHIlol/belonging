@@ -11,14 +11,18 @@ namespace belonging.Views;
 
 public partial class MainWindow : Window
 {
+//variables
     private string? _selectedShape;
     private bool _checkMode;
+    private List<Shape> _shapes;
     private Shape? _currentShape;
     private TextBlock _resultText;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        _shapes = new List<Shape>();
 
         _resultText = new TextBlock
         {
@@ -28,6 +32,30 @@ public partial class MainWindow : Window
             Margin = new Thickness(0, 10, 0, 0)
         };
         MainGrid.Children.Add(_resultText);
+
+        this.Loaded += OnWindowLoaded;
+    }
+
+    private void OnWindowLoaded(object? sender, EventArgs e)
+    {
+        GenerateRandomShapes(3);
+    }
+
+//buttons
+    private void OnRefreshShapesClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DrawingCanvas.Children.Clear();
+        _shapes.Clear();
+        _resultText.Text = string.Empty;
+
+        GenerateRandomShapes(3);
+    }
+
+    private void OnClearCanvasClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DrawingCanvas.Children.Clear();
+        _shapes.Clear();
+        _resultText.Text = string.Empty;
     }
 
     private void OnDrawSquareClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -53,17 +81,22 @@ public partial class MainWindow : Window
         _checkMode = true;
     }
 
+
+
     private void OnCanvasClick(object? sender, PointerPressedEventArgs e)
     {
         var pointerPosition = e.GetPosition(DrawingCanvas);
 
         if (_checkMode)
         {
-            if (_currentShape != null && IsPointInsideShape(_currentShape, pointerPosition))
+            var hitShape = _shapes.FirstOrDefault(shape => IsPointInsideShape(shape, pointerPosition));
+
+            if (hitShape != null)
             {
-                _resultText.Text = "Попал!";
+                string shapeType = hitShape.Tag?.ToString() ?? "Неизвестная фигура";
+                _resultText.Text = $"Попал в {shapeType}!";
                 _resultText.Foreground = Brushes.Green;
-                Console.WriteLine("Попал!");
+                Console.WriteLine($"Попал в {shapeType}!");
             }
             else
             {
@@ -76,15 +109,14 @@ public partial class MainWindow : Window
 
         if (_selectedShape == null) return;
 
-        DrawingCanvas.Children.Clear();
-
         _currentShape = _selectedShape switch
         {
             "Square" => new Rectangle
             {
                 Width = 50,
                 Height = 50,
-                Fill = Brushes.Blue
+                Fill = Brushes.Blue,
+                Tag = "Квадрат"
             },
             "Pentagon" => new Polygon
             {
@@ -96,7 +128,8 @@ public partial class MainWindow : Window
                     new Point(10, 50),
                     new Point(0, 15)
                 },
-                Fill = Brushes.Green
+                Fill = Brushes.Green,
+                Tag = "Пятиугольник"
             },
             "Hexagon" => new Polygon
             {
@@ -109,7 +142,8 @@ public partial class MainWindow : Window
                     new Point(0, 38),
                     new Point(0, 13)
                 },
-                Fill = Brushes.Red
+                Fill = Brushes.Red,
+                Tag = "Шестиугольник"
             },
             _ => null
         };
@@ -126,6 +160,7 @@ public partial class MainWindow : Window
             Canvas.SetTop(_currentShape, y);
 
             DrawingCanvas.Children.Add(_currentShape);
+            _shapes.Add(_currentShape);
         }
     }
 
@@ -136,7 +171,7 @@ public partial class MainWindow : Window
             double left = Canvas.GetLeft(rectangle);
             double top = Canvas.GetTop(rectangle);
             return point.X >= left && point.X <= left + rectangle.Width &&
-                   point.Y >= top && point.Y <= top + rectangle.Height;
+                point.Y >= top && point.Y <= top + rectangle.Height;
         }
 
         if (shape is Polygon polygon)
@@ -172,7 +207,69 @@ public partial class MainWindow : Window
 
         return isInside;
     }
-}
 
-// double x = Math.Max(0, Math.Min(pointerPosition.X - shapeWidth / 2, DrawingCanvas.Bounds.Width - shapeWidth)); 
-// double y = Math.Max(0, Math.Min(pointerPosition.Y - shapeHeight / 2, DrawingCanvas.Bounds.Height - shapeHeight));
+    private void GenerateRandomShapes(int count)
+    {
+        var random = new Random();
+        var shapeTypes = new[] { "Square", "Pentagon", "Hexagon" };
+
+        for (int i = 0; i < count; i++)
+        {
+            string randomShape = shapeTypes[random.Next(shapeTypes.Length)];
+
+            Shape? shape = randomShape switch
+            {
+                "Square" => new Rectangle
+                {
+                    Width = 50,
+                    Height = 50,
+                    Fill = Brushes.Blue,
+                    Tag = "Квадрат"
+                },
+                "Pentagon" => new Polygon
+                {
+                    Points = new Avalonia.Collections.AvaloniaList<Point>
+                    {
+                        new Point(25, 0),
+                        new Point(50, 15),
+                        new Point(40, 50),
+                        new Point(10, 50),
+                        new Point(0, 15)
+                    },
+                    Fill = Brushes.Green,
+                    Tag = "Пятиугольник"
+                },
+                "Hexagon" => new Polygon
+                {
+                    Points = new Avalonia.Collections.AvaloniaList<Point>
+                    {
+                        new Point(25, 0),
+                        new Point(50, 13),
+                        new Point(50, 38),
+                        new Point(25, 50),
+                        new Point(0, 38),
+                        new Point(0, 13)
+                    },
+                    Fill = Brushes.Red,
+                    Tag = "Шестиугольник"
+                },
+                _ => null
+            };
+
+            if (shape != null)
+            {
+                double canvasWidth = DrawingCanvas.Bounds.Width;
+                double canvasHeight = DrawingCanvas.Bounds.Height;
+
+                double x = random.NextDouble() * Math.Max(0, canvasWidth - 50);
+                double y = random.NextDouble() * Math.Max(0, canvasHeight - 50);
+
+                Canvas.SetLeft(shape, x);
+                Canvas.SetTop(shape, y);
+
+                DrawingCanvas.Children.Add(shape);
+                _shapes.Add(shape);
+            }
+        }
+    }
+}
